@@ -1,9 +1,9 @@
-# Your Name Here
+# Cole Jordan
 # UWYO COSC 1010
-# Submission Date
-# Lab XX
-# Lab Section:
-# Sources, people worked with, help given to:
+# 11/14/2024
+# Lab 09
+# Lab Section: 12
+# Sources, people worked with, help given to: Ben Woolsey
 # Your
 # Comments
 # Here
@@ -35,6 +35,33 @@
 # - Assign the parameter for sauce to the attribute.
 # - Create the toppings attribute, starting off as a list only holding cheese.
 
+class Pizza:
+    def __init__(self, size, sauce='red'):
+        self.setSize(size)
+        self.sauce = sauce
+        self.toppings = ['cheese']
+
+    def setSize(self, size):
+        if size > 10:
+            self.size = size
+        else:
+            self.size = 10
+
+    def setToppings(self, *toppings):
+        for currentTopping in toppings:
+            self.toppings.append(currentTopping)
+
+    def getSize(self):
+        return self.size
+
+    def getSauce(self):
+        return self.sauce
+
+    def getToppings(self):
+        return self.toppings
+
+    def getToppingCount(self):
+        return len(self.toppings)
 
 # You will be creating a Pizzeria class with the following attributes:
 # - orders, the number of orders placed. Should start at 0.
@@ -70,6 +97,76 @@
 # - getNumberOfOrders()
 #   - This will simply return the number of orders.
 
+class Pizzeria:
+    pricePerTopping = 0.3
+    pricePerInch = 0.6
+    
+    def __init__(self):
+        self.orders = 0
+        self.pizzas = []
+
+    def placeOrder(self):
+        self.orders += 1
+
+        while True:
+            try:
+                size = int(input('Enter Pizza Size in Inches, minimum/default is 10 inches: '))
+                if size <= 10:
+                    print("The minimum pizza size is 10 inches. Defaulting to 10 inches.")
+                    size = 10
+                break  # exit loop if size is valid
+            except ValueError:
+                print('Input a valid number for size.')
+            
+        sauce = str(input('Enter Sauce Type Here (Default is "red"): '))
+        if not sauce:
+            sauce = 'red'
+            
+        toppings = []
+        while True:
+            topping = input('Enter topping here, default cheese. Press enter to stop: ').strip()
+            if topping == '':
+                break
+            toppings.append(topping)
+
+        pizza = Pizza(size, sauce)
+        pizza.setToppings(*toppings)
+        self.pizzas.append(pizza)
+        
+    def getPrice(self):
+        if self.orders == 0:
+            print('Please Place an Order First')
+            return 0
+        pizza = self.pizzas[-1]
+        return (pizza.getSize() * self.pricePerInch) + (pizza.getToppingCount() * self.pricePerTopping)
+        
+    def getNumberOfOrders(self):
+        return self.orders
+    
+    def getReceipt(self):
+        if self.orders == 0:
+            print('Please Place an Order First')
+            return
+
+        if not self.pizzas:
+            print("No pizzas in the order history")
+            return
+        
+        currentPizza = self.pizzas[-1]
+        priceForSize = currentPizza.getSize() * self.pricePerInch
+        priceForToppings = currentPizza.getToppingCount() * self.pricePerTopping
+        totalPrice = self.getPrice()
+        
+        receipt = f'--- Current Pizza Receipt ---\nYou ordered a {currentPizza.getSize()}" pizza with {currentPizza.getSauce()} sauce and the following toppings: '
+
+        for topping in currentPizza.getToppings():
+            receipt += f"\n\t{topping}"
+
+        receipt += f"\nYou ordered a {currentPizza.getSize()} inch pizza for ${priceForSize}"
+        receipt += f"\nYou had {currentPizza.getToppingCount()} topping(s) for ${priceForToppings}"
+        receipt += f"\nYour total price is ${totalPrice}"
+
+        print(receipt)
 
 # - Declare your pizzeria object.
 # - Enter a while loop to ask if the user wants to order a pizza.
@@ -103,3 +200,19 @@ Your total price is $12.9
 
 Would you like to place an order? exit to exit
 """
+
+pizzeria = Pizzeria()
+
+while True:
+    entry = input("Welcome to the Pizzeria! Type 'start' to place an order, or 'exit' to exit: ").strip().lower()
+
+    if entry == 'exit':
+        print('Thanks for coming by, see you next time!')
+        break
+    elif entry == 'start':
+        pizzeria.placeOrder()
+        pizzeria.getReceipt()
+    else:
+        print("Invalid Input, please type 'start' or 'exit'.")
+
+print(f"Number of Orders Placed: {pizzeria.getNumberOfOrders()}")
